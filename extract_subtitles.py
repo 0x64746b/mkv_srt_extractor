@@ -1,17 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
-
-
 """Extract subtitles from a Matroska file."""
-
-
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 
 import argparse
 from os import path
@@ -113,9 +102,9 @@ class Extractor(object):
         for track in subtitle_tracks:
             print(track)
 
-        selected_track = eval(input(
+        selected_track = input(
             'Please enter the number of the track to be extracted: '
-        ))
+        )
 
         if selected_track in [track.number for track in subtitle_tracks]:
             return selected_track
