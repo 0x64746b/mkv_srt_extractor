@@ -53,7 +53,7 @@ class Extractor(object):
         self._extract_track(mkv_file, selected_track)
 
     def _get_tracks(self, mkv_file):
-        info = sh.mkvinfo(mkv_file).stdout
+        info = sh.mkvinfo(mkv_file).stdout.decode('utf-8')
 
         try:
             raw_tracks = self._parse_segment(info)
