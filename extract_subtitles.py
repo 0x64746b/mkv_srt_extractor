@@ -79,7 +79,7 @@ class Extractor(object):
 
         tracks = segment.split('| + A track\n')
 
-        return filter(None, tracks)
+        return [_f for _f in tracks if _f]
 
     def _parse_tracks(self, tracks):
 
@@ -113,9 +113,9 @@ class Extractor(object):
         for track in subtitle_tracks:
             print(track)
 
-        selected_track = raw_input(
+        selected_track = eval(input(
             'Please enter the number of the track to be extracted: '
-        )
+        ))
 
         if selected_track in [track.number for track in subtitle_tracks]:
             return selected_track
