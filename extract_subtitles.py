@@ -4,15 +4,6 @@
 
 """Extract subtitles from a Matroska file."""
 
-
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
-
 import argparse
 from os import path
 import re
@@ -57,6 +48,7 @@ class Extractor(object):
 
         try:
             raw_tracks = self._parse_segment(info)
+
         except AttributeError:
             sys.exit(
                 'Failed to find tracks segment in {}: {}'.format(
@@ -70,14 +62,14 @@ class Extractor(object):
     def _parse_segment(self, info):
 
         segment = re.search(
-            '^\|\+ Segment tracks\n'
+            '^\|\+ Tracks\n'
             '^(.*?)'
             '^\|\+ ',
             info,
             re.MULTILINE | re.DOTALL
         ).group(1)
 
-        tracks = segment.split('| + A track\n')
+        tracks = segment.split('| + Track\n')
 
         return [_f for _f in tracks if _f]
 
@@ -86,25 +78,33 @@ class Extractor(object):
         subtitle_tracks = []
 
         for track in tracks:
-            if re.search('Track type: subtitles', track):
-                track_num = re.search(
-                    'Track number: \d+'
-                    ' \(track ID for mkvmerge & mkvextract: (\d+)\)\n',
-                    track
-                ).group(1)
+            match = re.search('Track type: subtitles', track)
 
-                language = re.search(
-                    'Language: (.+)',
-                    track
-                ).group(1)
+            if not match:
+                continue
 
-                name_field = re.search(
-                    'Name: (.+)',
-                    track
-                )
-                name = name_field.group(1) if name_field else ''
+            track_num = re.search(
+                'Track number: \d+'
+                ' \(track ID for mkvmerge & mkvextract: (\d+)\)\n',
+                track
+            ).group(1)
 
-                subtitle_tracks.append(Track(track_num, language, name))
+            language_match = re.search(
+                'Language: (.+)\n',
+                track
+            )
+            if not language_match:
+                language = 'unk'
+            else:
+                language = language_match.group(1)
+
+            name_field = re.search(
+                'Name: (.+)',
+                track
+            )
+            name = name_field.group(1) if name_field else ''
+
+            subtitle_tracks.append(Track(track_num, language, name))
 
         return subtitle_tracks
 
@@ -113,9 +113,9 @@ class Extractor(object):
         for track in subtitle_tracks:
             print(track)
 
-        selected_track = eval(input(
+        selected_track = input(
             'Please enter the number of the track to be extracted: '
-        ))
+        )
 
         if selected_track in [track.number for track in subtitle_tracks]:
             return selected_track
